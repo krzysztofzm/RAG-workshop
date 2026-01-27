@@ -1,2 +1,2 @@
 # RAG-workskop
-Repo created for a workshop about creatinl local RAGs
+Repo created for a workshop about creating local RAGs
