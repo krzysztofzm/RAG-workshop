@@ -8,7 +8,7 @@ class DatabaseService:
 
     async def initialize_database(self):
         async with aiosqlite.connect(self.db_path) as db:
-            # Nowa tabela dopasowana do API
+            # New Table Tailored to the API
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS api_docs (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,7 +24,7 @@ class DatabaseService:
                 )
             """)
             
-            # FTS5 zoptymalizowane pod wyszukiwanie techniczne
+            # FTS5 optimized for technical search
             await db.execute("""
                 CREATE VIRTUAL TABLE IF NOT EXISTS api_search USING fts5(
                     uuid UNINDEXED,
@@ -50,8 +50,8 @@ class DatabaseService:
                   doc.get('summary'), doc.get('description'), doc.get('tags')))
             await db.commit()
 
-        # Dane zostały dodane do bazy, teraz przygotowujemy do wektora
-        # Do wektora trafia zarówno metadane techniczne jak i opis
+        # Data has been added to the database; now we are preparing it for vectorization.
+        # Both technical metadata and descriptions are sent to the vector store
         vector_text = f"API {doc.get('method', '')} {doc.get('path', '')}: {doc.get('summary', '')}. {doc.get('content', '')}"
         await self.vector_service.add_points('api_collection', [{
             "id": doc['uuid'],
@@ -65,7 +65,7 @@ class DatabaseService:
             escaped_query = query.replace('"', '""')
             safe_query = f'"{escaped_query}"'
             
-            # Pobieramy wszystkie kolumny z wirtualnej tabeli
+            # Retrieving all columns from the virtual table.
             sql = "SELECT * FROM api_search WHERE api_search MATCH ? ORDER BY rank LIMIT ?"
             try:
                 async with db.execute(sql, (safe_query, limit)) as cursor:

@@ -5,10 +5,10 @@ from openai import AsyncOpenAI
 
 class LocalLLMService:
     def __init__(self):
-        # Ollama udostępnia API kompatybilne z OpenAI na porcie 11434
+        # Ollama provides an OpenAI-compatible API on port 11434.
         self.client = AsyncOpenAI(
             base_url="http://localhost:11434/v1",
-            api_key="ollama" # Wartość wymagana przez bibliotekę, ignorowana przez Ollama
+            api_key="ollama" # Value required by the library, but ignored by Ollama.
         )
         self.tokenizers = {}
 
@@ -21,19 +21,19 @@ class LocalLLMService:
         return self.tokenizers[model_name]
 
     async def create_embedding(self, text: str) -> List[float]:
-        """Generuje lokalny embedding przy użyciu modelu nomic (768 wymiarów)"""
+        """Generates a local embedding using the Nomic model (768 dimensions)."""
         try:
             response = await self.client.embeddings.create(
                 model="nomic-embed-text",
                 input=text
             )
-            return response.data[0].embedding  # Zwracamy tylko embedding pierwszego elementu dlaczego? trzeba sprawdzic co zawiera response.data
+            return response.data[0].embedding  # We only return the embedding of the first element—why? We need to check what response.data contains.
         except Exception as e:
-            print(f"Błąd lokalnego embeddingu: {e}")
+            print(f"Local embedding failure: {e}")
             raise
 
     async def completion(self, messages: List[Dict[str, str]], model: str = "llama3.2") -> Any:
-        """Lokalna generacja tekstu (np. do określenia autorów)"""
+        """Local text generation"""
         try:
             return await self.client.chat.completions.create(
                 model=model,
@@ -41,11 +41,11 @@ class LocalLLMService:
                 temperature=0
             )
         except Exception as e:
-            print(f"Błąd lokalnej generacji: {e}")
+            print(f"Local generation error: {e}")
             raise
     
     async def is_test_request(self, query: str) -> bool:
-        """Sprawdza, czy użytkownik prosi o wygenerowanie testu/kodu"""
+        """Checks if the user is requesting code or test generation."""
         prompt = f"""Analyze the user query. Is the user asking to write, create, or generate an automation test, 
         a test case, or Robot Framework code? Answer only 'YES' or 'NO'.
         
@@ -84,6 +84,6 @@ class LocalLLMService:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            temperature=0.1 # Niska temperatura dla stabilnego kodu
+            temperature=0.1 # Low temperature for stable code generation
         )
         return response.choices[0].message.content

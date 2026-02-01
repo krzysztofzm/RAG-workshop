@@ -1,27 +1,26 @@
-1. Schemat blokowy (Koncepcyjny)
-Ten diagram przedstawia wysokopoziomową strukturę systemu, od źródła danych po wyjście generatywne.
+1. Conceptual Block Diagram This diagram illustrates the high-level system structure, from the data source to the generative output.
 
 ```mermaid
 graph TD
-    subgraph Ingestion_Layer [Warstwa Ingestii]
+    subgraph Ingestion_Layer [Data Ingestion Layer]
         SW[swagger.json] --> SP[Swagger Parser]
-        SP --> EX[Ekstrakcja Endpointów i Schematów]
+        SP --> EX[Endpoint and Schema Extraction]
     end
 
-    subgraph Storage_Layer [Warstwa Magazynowania - Dual Storage]
+    subgraph Storage_Layer [Dual Storage Layer]
         EX --> SQL[(SQLite FTS5)]
         EX --> QD[(Qdrant Vector DB)]
         SQL -- Keyword Search --o RS[Hybrid Search / RRF]
         QD -- Semantic Search --o RS
     end
 
-    subgraph Orchestration_Layer [Warstwa Orkiestracji & RAG]
+    subgraph Orchestration_Layer [Orchestration & RAG Layer]
         RS --> RRF[Reciprocal Rank Fusion]
         RRF --> IA[Intent Analysis]
         IA --> CB[Context Builder]
     end
 
-    subgraph Generative_Layer [Warstwa Generatywna]
+    subgraph Generative_Layer [Generation layer]
         CB --> LLM[Local LLM - codellama / llama3.2]
         LLM --> OUT[Robot Framework Code / Metadata]
     end
@@ -32,8 +31,7 @@ graph TD
     style Generative_Layer fill:#BCD65C,stroke:#333
 ```
 
-2. Architektura Komponentów
-Szczegółowe powiązania między klasami w Twoim kodzie Python.
+2. Component Architecture Detailed relationships between classes within your Python code.
 
 ```mermaid
 classDiagram
@@ -65,16 +63,15 @@ classDiagram
         +completion(messages)
     }
 
-    Main --> SwaggerParser : używa
-    Main --> DatabaseService : zarządza danymi
-    Main --> VectorService : wyszukuje semantycznie
-    Main --> LocalLLMService : klasyfikuje i generuje
-    DatabaseService ..> VectorService : synchronizuje dane
-    VectorService --> LocalLLMService : prosi o embeddingi (nomic)
+    Main --> SwaggerParser : uses
+    Main --> DatabaseService : data management
+    Main --> VectorService : semantic search
+    Main --> LocalLLMService : classifies and generates
+    DatabaseService ..> VectorService : data synchrinization
+    VectorService --> LocalLLMService : asks for embedings (nomic)
 ```
 
-3. Workflow (Przepływ danych)
-Diagram sekwencji przedstawiający dwa główne procesy: Indeksowanie oraz Zapytanie (RAG).
+3. Workflow (Data Flow) A sequence diagram illustrating the two main processes: Indexing and Querying (RAG).
 
 ```mermaid
 %%{init: {
@@ -102,31 +99,31 @@ sequenceDiagram
     autonumber
     
     rect rgb(245, 245, 245)
-    Note over User, Qdrant: KROK 1: Inicjalizacja i Seeding
-    User->>Main: Uruchomienie (start)
+    Note over User, Qdrant: STEP 1: initialization and Seeding
+    User->>Main: start
     Main->>SwaggerParser: process_swagger("swagger.json")
-    SwaggerParser-->>Main: Lista dokumentów (UUID, content, metadata)
+    SwaggerParser-->>Main: documents list (UUID, content, metadata)
     Main->>DatabaseService: insert_api_doc(doc)
-    DatabaseService->>SQLite: Zapisz do FTS5 (path, method, tags)
+    DatabaseService->>SQLite: saves to FTS5 (path, method, tags)
     DatabaseService->>VectorService: add_points(doc)
     VectorService->>LocalLLMService: create_embedding(text)
-    LocalLLMService-->>VectorService: wektor (768d - nomic)
-    VectorService->>Qdrant: Zapisz punkt (vector + payload)
+    LocalLLMService-->>VectorService: vector (768d - nomic)
+    VectorService->>Qdrant: saving points (vector + payload)
     end
 
     rect rgb(235, 245, 255)
-    Note over User, LocalLLMService: KROK 2 & 3: Retrieval i Generowanie
-    User->>Main: Query: "Jak dodać psa?"
+    Note over User, LocalLLMService: STEP 2 & 3: Retrieval and Generation
+    User->>Main: Query: "How to add a dog?"
     Main->>VectorService: perform_search(query)
-    VectorService-->>Main: Wyniki wektorowe
+    VectorService-->>Main: vector results
     Main->>DatabaseService: search_keyword(query)
-    DatabaseService-->>Main: Wyniki FTS5
-    Main->>Main: Algorytm RRF (Ranking)
+    DatabaseService-->>Main: FTS5 results
+    Main->>Main: Algorythm RRF (Ranking)
     Main->>LocalLLMService: is_test_request(query)
     LocalLLMService-->>Main: YES
     Main->>LocalLLMService: generate_test_case(Top 3 Context, Query)
     LocalLLMService-->>Main: Robot Framework Code
-    Main->>User: Wyświetla tabelę wyników + Wygenerowany Kod
+    Main->>User: Displays results table + generated code
     end
 ```
 

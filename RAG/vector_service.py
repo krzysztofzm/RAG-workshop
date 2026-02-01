@@ -4,7 +4,7 @@ from qdrant_client import QdrantClient, models
 
 class VectorService:
     def __init__(self, local_llm_service):
-        # Qdrant działa w trybie lokalnym w folderze qdrant_db
+        # Qdrant runs in local mode using the qdrant_db folder.
         self.client = QdrantClient(path="./qdrant_db")
         self.llm = local_llm_service
 
@@ -13,7 +13,7 @@ class VectorService:
         if not any(c.name == name for c in collections):
             self.client.create_collection(
                 collection_name=name,
-                # Rozmiar 768 dla modelu nomic-embed-text
+                # 768-dimensional vector size for the nomic-embed-text model
                 vectors_config=models.VectorParams(size=768, distance=models.Distance.COSINE)
             )
 
@@ -41,14 +41,13 @@ class VectorService:
 
         return [{
             "uuid": res.id,
-            "path": res.payload.get('path'),        # Zmienione z 'name'
-            "method": res.payload.get('method'),    # Zmienione z 'author'
-            "summary": res.payload.get('summary'),  # Dodane
+            "path": res.payload.get('path'),
+            "method": res.payload.get('method'),
+            "summary": res.payload.get('summary'),
             "description": res.payload.get('description'),
             "content": res.payload.get('content'),
             "score": res.score
         } for res in response.points]
 
     async def close(self):
-        # QdrantClient lokalny nie wymaga jawnego zamknięcia, ale dla porządku:
         self.client = None
