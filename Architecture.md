@@ -127,32 +127,6 @@ sequenceDiagram
     end
 ```
 
-4. Schemat Input/Output
-Diagram wejść i wyjść systemu.
-
-```mermaid
-graph LR
-    subgraph Inputs [WEJŚCIE]
-        A[swagger.json] --> SYS
-        B[User Query / NLP] --> SYS
-    end
-
-    subgraph SYS [SYSTEM HYBRID RAG]
-        direction TB
-        S1[Hybrid Search]
-        S2[RRF Re-ranker]
-        S3[LLM Reasoner]
-    end
-
-    subgraph Outputs [WYJŚCIE]
-        SYS --> C[Tabela Metadanych: Metoda, Ścieżka, Score]
-        SYS --> D[Kod Robot Framework: RequestsLibrary]
-    end
-
-    style SYS fill:#fff,stroke:#333,stroke-width:2px
-    style Inputs fill:#eee
-    style Outputs fill:#eee
-```
 
 
 Podsumowanie techniczne zawarte w diagramach:

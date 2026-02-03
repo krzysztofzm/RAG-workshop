@@ -87,3 +87,30 @@ class LocalLLMService:
             temperature=0.1 # Low temperature for stable code generation
         )
         return response.choices[0].message.content
+    
+    async def generate_answer(self, context: str, query: str):
+        system_prompt = """
+        You are an API Documentation Expert. Use the provided API documentation to answer the user's query.
+        Return only the answer, no explanations.
+        """
+        
+        user_prompt = f"""
+        API Documentation Context:
+        {context}
+        
+        User Query:
+        {query}
+        
+        Answer:
+        """
+        
+        response = await self.client.chat.completions.create(
+            model="llama3.2",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            temperature=0.1 # Low temperature for stable answer generation
+        )
+        return response.choices[0].message.content
+    

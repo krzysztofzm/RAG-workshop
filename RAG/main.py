@@ -4,7 +4,7 @@ from tabulate import tabulate
 
 from local_llm_service import LocalLLMService
 from vector_service import VectorService
-from RAG.database_service import DatabaseService
+from database_service import DatabaseService
 from swagger_processor import SwaggerParser
 
 # Static namespace for reproducible UUIDs
@@ -47,7 +47,7 @@ async def main():
         # 3. Chceck is database empty and import data if needed
         if await db_svc.get_all_count() == 0:
             print("Importowanie dokumentacji ze swagger.json...")
-            api_docs = parser.process_swagger('swagger.json')
+            api_docs = parser.process_swagger('RAG\swagger.json')
             # api_docs = parser.process_swagger('C:\AI Playground\AI_Devs\zadania\hybrid_rag_local_api\swagger.json')
             
             for doc in api_docs:  #doc is a single dictionary representing one endpoint or model.
@@ -56,9 +56,9 @@ async def main():
             print(f"End! {len(api_docs)} elements indexed.")
 
         # 4. Exapmple Query
-        QUERY = "Write a Robot Framework test case that adds a dog to the pet store and places an order for it."
-        # QUERY = "How to find pets by tags?"
-        print(f"\nSZUKAM: {QUERY}")
+        # QUERY = "Write a Robot Framework test case that adds a dog to the pet store and places an order for it."
+        QUERY = "How to find pets by tags?"
+        print(f"\nQUERYING: {QUERY}")
         
         # Hybrid search
         vector_results = await vector_svc.perform_search("api_collection", QUERY, limit=5)
@@ -75,21 +75,25 @@ async def main():
             summary = (r.get('summary') or r.get('description') or "")[:60] + "..."
             table.append([method, path, summary, f"{r['score']:.4f}"])
             
+        print("\n[TOP SEARCH RESULTS:]")
         print(tabulate(table, headers=["Method", "Path / Model", "Summary", "Score"]))
 
-        # 6. Generating a test case based on the top results
+        # 6. Generating a test case or answering the question based on the top results
+        context_block = "\n---\n".join([r['content'] for r in final_results[:3]])
+
         needs_test = await llm_svc.is_test_request(QUERY)
 
         if needs_test:
             print("\n[GENERATING ROBOT FRAMEWORK TEST CASE...]")
-            context_block = "\n---\n".join([r['content'] for r in final_results[:3]])
-
             test_code = await llm_svc.generate_test_case(context_block, QUERY)
 
-            print("\nGENERATED CODE:")
-            print("---------------------------------------")
+            print("\nGENERATED CODE:\n")
             print(test_code)
-            print("---------------------------------------")
+        else:
+            print("\n[ANSWER TO THE QUERY...]")
+            answer = await llm_svc.generate_answer(context_block, QUERY)
+            print("\nANSWER:")
+            print(answer)
 
     finally:
         await vector_svc.close()
