@@ -1,5 +1,3 @@
-import os
-import tiktoken
 from typing import List, Dict, Any, Optional
 from openai import AsyncOpenAI
 
@@ -10,15 +8,7 @@ class LocalLLMService:
             base_url="http://localhost:11434/v1",
             api_key="ollama" # Value required by the library, but ignored by Ollama.
         )
-        self.tokenizers = {}
 
-    def get_tokenizer(self, model_name: str = "gpt-4o"):
-        if model_name not in self.tokenizers:
-            try:
-                self.tokenizers[model_name] = tiktoken.encoding_for_model(model_name)
-            except:
-                self.tokenizers[model_name] = tiktoken.get_encoding("cl100k_base")
-        return self.tokenizers[model_name]
 
     async def create_embedding(self, text: str) -> List[float]:
         """Generates a local embedding using the Nomic model (768 dimensions)."""

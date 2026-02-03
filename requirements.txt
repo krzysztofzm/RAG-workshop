@@ -1,5 +1,4 @@
 aiosqlite
-tiktoken
 openai
 tabulate
 qdrant-client
