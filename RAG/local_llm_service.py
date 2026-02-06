@@ -77,6 +77,41 @@ class LocalLLMService:
             temperature=0.1 # Low temperature for stable code generation
         )
         return response.choices[0].message.content
+
+    async def refine_test_case(self, original_code: str, context: str, query: str):
+        system_prompt = """
+        You are a Senior Robot Framework Developer. 
+        Review the provided code. It was generated based on the API documentation below.
+        
+        Your task:
+        1. Check for common errors (missing libraries, wrong indentation, incorrect keywords).
+        2. Ensure it strictly matches the API documentation (correct paths, methods).
+        3. Rewrite the code to be cleaner and error-free.
+        4. Return ONLY the improved code.
+        """
+        
+        user_prompt = f"""
+        API Context:
+        {context}
+        
+        User Requirement:
+        {query}
+        
+        Draft Code to Fix:
+        {original_code}
+        
+        Improved Robot Framework Code:
+        """
+        
+        response = await self.client.chat.completions.create(
+            model="codellama", 
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            temperature=0.1
+        )
+        return response.choices[0].message.content
     
     async def generate_answer(self, context: str, query: str):
         system_prompt = """

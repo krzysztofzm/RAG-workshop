@@ -89,6 +89,12 @@ async def main():
 
             print("\nGENERATED CODE:\n")
             print(test_code)
+
+            print("\n[PERFORMING AI CODE REVIEW & REFINEMENT...]")
+            final_code = await llm_svc.refine_test_case(test_code, context_block, QUERY)
+            
+            print("\n--- FINAL APPROVED CODE ---\n")
+            print(final_code)
         else:
             print("\n[ANSWER TO THE QUERY...]")
             answer = await llm_svc.generate_answer(context_block, QUERY)
