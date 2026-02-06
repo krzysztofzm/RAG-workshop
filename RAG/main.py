@@ -25,7 +25,7 @@ def calculate_rrf(vector_results: list, keyword_results: list):
 
     final_results = []
     for item in result_map.values():
-        # Stała 60 jest standardem w RRF
+        # constant 60 is a standatd in RRF
         v_score = 1 / (60 + item.get('vector_rank', 999))
         k_score = 1 / (60 + item.get('keyword_rank', 999))
         item['score'] = v_score + k_score
@@ -66,7 +66,7 @@ async def main():
         
         final_results = calculate_rrf(vector_results, keyword_results)
 
-        # 5. Resukt presentation
+        # 5. Result presentation
         table = []
         for r in final_results[:5]:
             # Displaying key technical information
