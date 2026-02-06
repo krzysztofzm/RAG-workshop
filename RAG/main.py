@@ -57,7 +57,7 @@ async def main():
 
         # 4. Exapmple Query
         # QUERY = "Write a Robot Framework test case that adds a dog to the pet store and places an order for it."
-        QUERY = "How to find pets by tags?"
+        QUERY = "How to add a dog?"
         print(f"\nQUERYING: {QUERY}")
         
         # Hybrid search

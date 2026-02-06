@@ -27,7 +27,7 @@ class SwaggerParser:
                 
                 # Formatting parameters description
                 params = info.get('parameters', [])
-                params_desc = "\n".join([  #comprehension list creating a string description of parameters
+                params_desc = "\n".join([
                     f"- {p.get('name')} ({p.get('in')}): {p.get('description', '')} "
                     f"[type: {p.get('type', 'any')}]" 
                     for p in params
