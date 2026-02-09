@@ -4,3 +4,4 @@ __pycache__/
 GEMINI.md
 api_rag.db
 qdrant_db
+/tests

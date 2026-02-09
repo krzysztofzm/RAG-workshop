@@ -56,8 +56,8 @@ async def main():
             print(f"End! {len(api_docs)} elements indexed.")
 
         # 4. Exapmple Query
-        # QUERY = "Write a Robot Framework test case that adds a dog to the pet store and places an order for it."
-        QUERY = "How to add a dog?"
+        QUERY = "Write a Robot Framework test case that adds a dog to the pet store and places an order for it."
+        # QUERY = "How to add a dog?"
         print(f"\nQUERYING: {QUERY}")
         
         # Hybrid search

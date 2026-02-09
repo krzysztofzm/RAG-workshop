@@ -5,3 +5,5 @@ qdrant-client
 
 requests
 pydantic
+robotframework
+robotframework-requests

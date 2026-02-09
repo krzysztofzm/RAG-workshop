@@ -56,6 +56,8 @@ class LocalLLMService:
         3. Write a clear 'Test Case'.
         4. Use keywords like 'Create Session', 'GET On Session', 'POST On Session', 'Status Should Be'.
         5. Return ONLY the code, no explanations.
+        6. Always check the 'DATA MODEL / SCHEMA' section for required fields before generating a request body.
+
         """
         
         user_prompt = f"""
