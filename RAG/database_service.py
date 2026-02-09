@@ -59,20 +59,27 @@ class DatabaseService:
             "metadata": doc
         }])
 
-    async def search_keyword(self, query: str, limit: int = 10):
+    async def search_keyword(self, query: str, limit: int = 5):
         async with aiosqlite.connect(self.db_path) as db:
             db.row_factory = aiosqlite.Row
-            escaped_query = query.replace('"', '""')
-            safe_query = f'"{escaped_query}"'
             
-            # Retrieving all columns from the virtual table.
+            # 1. removing characterd that may destroy FTS5 query (we leave space, letters i digits)
+            clean_query = "".join(c if c.isalnum() or c.isspace() else " " for c in query)
+            
+            # 2. combining the words with AND operator (all must appear, but in any order and column)
+            words = clean_query.split()
+            if not words: return []
+            
+            # creating a query string with AND operator between words for FTS5
+            fts_query = " AND ".join(words)
+            
             sql = "SELECT * FROM api_search WHERE api_search MATCH ? ORDER BY rank LIMIT ?"
             try:
-                async with db.execute(sql, (safe_query, limit)) as cursor:
+                async with db.execute(sql, (fts_query, limit)) as cursor:
                     rows = await cursor.fetchall()
                     return [dict(row) for row in rows]
             except Exception as e:
-                print(f"Błąd FTS5: {e}")
+                print(f"Error in FTS5 search: {e}")
                 return []
     
     async def get_all_count(self):
