@@ -71,7 +71,7 @@ class DatabaseService:
             if not words: return []
             
             # creating a query string with AND operator between words for FTS5
-            fts_query = " AND ".join(words)
+            fts_query = " OR ".join(words)
             
             sql = "SELECT * FROM api_search WHERE api_search MATCH ? ORDER BY rank LIMIT ?"
             try:
