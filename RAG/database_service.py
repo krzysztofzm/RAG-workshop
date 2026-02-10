@@ -72,7 +72,7 @@ class DatabaseService:
                     rows = await cursor.fetchall()
                     return [dict(row) for row in rows]
             except Exception as e:
-                print(f"Błąd FTS5: {e}")
+                print(f"FTS5 error: {e}")
                 return []
     
     async def get_all_count(self):

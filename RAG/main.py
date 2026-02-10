@@ -46,9 +46,8 @@ async def main():
 
         # 3. Chceck is database empty and import data if needed
         if await db_svc.get_all_count() == 0:
-            print("Importowanie dokumentacji ze swagger.json...")
+            print("Importing documentation from swagger.json...")
             api_docs = parser.process_swagger('RAG\swagger.json')
-            # api_docs = parser.process_swagger('C:\AI Playground\AI_Devs\zadania\hybrid_rag_local_api\swagger.json')
             
             for doc in api_docs:  #doc is a single dictionary representing one endpoint or model.
                 # We are using a new method tailored to the API.
